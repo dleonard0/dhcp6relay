@@ -32,9 +32,10 @@ struct pkt {
 #define PKT_INIT { .rawoff = 0 }
 
 /* Scans an L2 packet and sets the header pointers.
- * On entry, the sll, rawlen, rawoff and raw[] fields of pkt should be set.
- * This function sets ip6_hdr, udphdr and data to point into pkt->data.
- * Returns 0 on success, -1 if this is not a udp packet. */
+ * On entry, the sll, rawlen, rawoff and raw[] fields of pkt must be set.
+ * On success the fields ip6_hdr, udphdr, data and datalen
+ * will be set, and point into pkt->raw[].
+ * Returns 0 on success, -1 if this is not a valid udp packet. */
 int pkt_scan_udp(struct pkt *pkt);
 
 /* Recieves from AF_PACKET into a packet structure.

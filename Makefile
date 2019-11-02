@@ -1,6 +1,6 @@
 
 CFLAGS += -Wall -pedantic
-CFLAGS += -ggdb
+#CFLAGS += -ggdb
 
 OBJS += dhcp.o
 OBJS += dumphex.o
@@ -22,3 +22,8 @@ clean:
 	rm -f dhcp6relay $(OBJS)
 	rm -f test $(test_OBJS)
 
+PREFIX ?= /usr
+bindir = $(PREFIX)/bin
+install:
+	install -d $(DESTDIR)$(bindir)
+	install -m 755 dhcp6relay $(DESTDIR)$(bindir)/dhcp6relay

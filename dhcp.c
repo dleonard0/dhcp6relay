@@ -63,7 +63,7 @@ dhcp_wrap(struct pkt *pkt, const struct ifc *ifc)
 				    pkt_lladdr(pkt));
 				return -1;
 			}
-			hop_count = pkg->data[1] + 1;
+			hop_count = pkt->data[1] + 1;
 		}
 	}
 

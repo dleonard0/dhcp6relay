@@ -40,6 +40,7 @@ main(int argc, char *argv[])
 			this_ifc = &ifc[nifc++];
 			memset(this_ifc, 0, sizeof *this_ifc);
 			this_ifc->name = optarg;
+			this_ifc->trust_hops = 10;
 			this_ifc->side = ch == 'i' ? CLIENT : SERVER;
 			break;
 		case 'v':

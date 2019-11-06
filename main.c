@@ -1,4 +1,5 @@
 #include <err.h>
+#include <limits.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,6 +22,18 @@ on_sighup()
 	loop_stop = 1;
 }
 
+/* Converts string to int, returning true on success */
+static int
+to_int(const char *arg, int *ret)
+{
+	char *e = NULL;
+	long v = strtol(arg, &e, 0);
+	if (!e || *e || v < INT_MIN || v > INT_MAX)
+		return 0;
+	*ret = v;
+	return 1;
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -29,8 +42,9 @@ main(int argc, char *argv[])
 	struct ifc *ifc = NULL;
 	struct ifc *this_ifc = NULL;
 	unsigned int nifc = 0;
+	int i;
 
-	while ((ch = getopt(argc, argv, "i:o:v")) != -1)
+	while ((ch = getopt(argc, argv, "i:o:t:v")) != -1)
 		switch (ch) {
 		case 'i':
 		case 'o':
@@ -41,6 +55,20 @@ main(int argc, char *argv[])
 			memset(this_ifc, 0, sizeof *this_ifc);
 			this_ifc->name = optarg;
 			this_ifc->side = ch == 'i' ? CLIENT : SERVER;
+			break;
+		case 't':
+			if (!this_ifc || this_ifc->side != CLIENT) {
+				error = 1;
+				warnx("-t: must follow -i <interface>");
+				break;
+			}
+			if (!to_int(optarg, &i) || i < 0 || i > 255) {
+				error = 1;
+				warnx("-t: expected number from 0..255 (%s)",
+				    this_ifc->name);
+				break;
+			}
+			this_ifc->trust_hops = i;
 			break;
 		case 'v':
 			verbose_level++;
@@ -54,7 +82,7 @@ main(int argc, char *argv[])
 	if (error) {
 		fprintf(stderr, "usage: %s"
 			" [-v]"
-			" [-i interface]..."
+			" [-i interface [-t trust]]..."
 			" [-o interface]..."
 			"\n",
 			argv[0]);

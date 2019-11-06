@@ -115,7 +115,7 @@ close:
 				    ifc[i].name, pkt_lladdr(&pkt));
 				unsigned j;
 				for (j = 0; j < nifc; j++)
-					if (ifc[j].side == SERVER &&
+					if (ifc[j].side == CLIENT &&
 					    pfd[j].fd != -1 &&
 					    strncmp(ifc[j].name, name,
 					        IFNAMSIZ) == 0)

@@ -149,14 +149,18 @@ dhcp_unwrap(struct pkt *pkt, const struct ifc *ifc,
 	ifname[0] = '\0';
 
 	/* Walk the options, looking for INTERFACE-ID and RELAY-MSG */
-	const char *p = pkt->data;
-	const char *pmax = p + pkt->datalen;
+	const char *p = pkt->data + 2 + 16 + 16;
+	const char *pmax = pkt->data + pkt->datalen;
 	while (p + sizeof (struct dhcp_opt) < pmax) {
 		/* Easier to copy into a stack var */
 		struct dhcp_opt opt;
 		memcpy(&opt, p, sizeof opt);
-		opt.len = htons(opt.len);
-		opt.code = htons(opt.code);
+		opt.len = ntohs(opt.len);
+		opt.code = ntohs(opt.code);
+		if (!opt.code) {
+			break;
+		}
+		verbose2("DHCPv6 relay packet option %d, offset %d, length %d\n", opt.code, (int) (p - pkt->data), opt.len);
 		p += sizeof opt; /* Move to data */
 		switch (opt.code) {
 		case OPTION_INTERFACE_ID:
@@ -175,6 +179,7 @@ dhcp_unwrap(struct pkt *pkt, const struct ifc *ifc,
 			break;
 		/* Ignore other options */
 		}
+		p += opt.len;
 	}
 	/* If any required options were missing, its a fail */
 	if (!msg_offset || !ifname[0]) {

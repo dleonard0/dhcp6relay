@@ -58,7 +58,7 @@ dhcp_wrap(struct pkt *pkt, const struct ifc *ifc)
 				return -1; /* malformed */
 			if (pkt->data[1/*hop_count*/] >= ifc->trust_hops) {
 				verbose(
-				    "%s: too many nested forwards (%u) from %s",
+				    "%s: too many nested forwards (%u) from %s\n",
 				    ifc->name, dhcp->hop_count,
 				    pkt_lladdr(pkt));
 				return -1;

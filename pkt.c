@@ -69,7 +69,7 @@ int
 pkt_send(int fd, struct pkt *pkt)
 {
 	if (pkt->udphdr)
-		pkt->udphdr->uh_sum = udp6_checksum(pkt);
+		pkt->udphdr->check = udp6_checksum(pkt);
 	return send(fd, &pkt->raw[pkt->rawoff], pkt->rawlen, 0);
 }
 
@@ -116,17 +116,17 @@ pkt_scan_udp(struct pkt *pkt)
 	if (pkt->ip6_hdr->ip6_nxt != IPPROTO_UDP)
 		return -1;
 	pkt->udphdr = (struct udphdr *)&pkt->raw[p];
-	if (p + ntohs(pkt->udphdr->uh_ulen) > pmax)
+	if (p + ntohs(pkt->udphdr->len) > pmax)
 		return -1;
 	if ((p += sizeof (struct udphdr)) > pmax)
 		return -1;
 	pkt->data = &pkt->raw[p];
-	pkt->datalen = ntohs(pkt->udphdr->uh_ulen) - sizeof (struct udphdr);
+	pkt->datalen = ntohs(pkt->udphdr->len) - sizeof (struct udphdr);
 
-	if (udp6_checksum(pkt) != pkt->udphdr->uh_sum)
+	if (udp6_checksum(pkt) != pkt->udphdr->check)
 		return -1;
 
-	return 0; // ntohs(pkt->udphdr->uh_ulen);
+	return 0; // ntohs(pkt->udphdr->len);
 }
 
 /* Inserts len bytes of uninitialised data into the UDP payload
@@ -146,7 +146,7 @@ pkt_insert_udp_data(struct pkt *pkt, unsigned int off, int len)
 		&pkt->raw[pkt->rawoff + pkt->rawlen] - (pkt->data + off));
 	pkt->rawlen += len;
 	pkt->datalen += len;
-	pkt->udphdr->uh_ulen = htons((int)ntohs(pkt->udphdr->uh_ulen) + len);
+	pkt->udphdr->len = htons((int)ntohs(pkt->udphdr->len) + len);
 	pkt->ip6_hdr->ip6_plen = htons((int)ntohs(pkt->ip6_hdr->ip6_plen) + len);
 	return pkt->data + off;
 }

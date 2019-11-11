@@ -10,7 +10,9 @@
  */
 
 #include <string.h>
+#include <sys/types.h>
 #include <sys/socket.h>
+#include <linux/if.h>
 #include <net/ethernet.h>
 #include <netinet/udp.h>
 #include <netinet/ip6.h>

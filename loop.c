@@ -3,7 +3,7 @@
 #include <ifaddrs.h>
 #include <unistd.h>
 
-#include <net/if.h>
+#include <linux/if.h>
 #include <netinet/in.h>
 #include <sys/poll.h>
 #include <sys/types.h>

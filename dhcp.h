@@ -1,4 +1,6 @@
-#include <net/if.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <linux/if.h>
 
 struct ifc;
 struct pkt;
